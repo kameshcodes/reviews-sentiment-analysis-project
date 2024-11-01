@@ -8,6 +8,7 @@ The core model in this app is an **LSTM-based neural network** with a **TF-IDF v
 Throughout the development, I experimented with various models, including Vanilla RNN and GRU, but found LSTM to be the most effective in terms of performance and stability.
 
 ![app-snapshot](imgs/app-snapshot.png)
+
 ---
 
 ## Features
