@@ -1,0 +1,70 @@
+# Ignore Python virtual environment
+venv/
+.venv/
+aclImdb
+data/df_preprocessed_review.parquet
+
+# Ignore compiled Python files
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.pdb
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore Python environment and package manager files
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# Ignore local environment variables and secrets
+.env
+.env.*
+
+# Ignore Docker files and volumes
+*.log
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Ignore cache and temporary files
+.cache/
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+
+# Ignore generated folders from tests or builds
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Ignore Streamlit static files if necessary
+.streamlit/
+
+# Ignore coverage reports
+coverage/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.coverage
+.hypothesis/
+.pytest_cache/
+
+# Ignore IDE or editor-specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Ignore any file you wish to exclude in the src directory
+src/__pycache__/
+src/*.pyc
+src/*.pyo

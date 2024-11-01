@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  sentiment_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sentiment_analysis_container
+    ports:
+      - "8502:8502" 
