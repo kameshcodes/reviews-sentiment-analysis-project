@@ -3,10 +3,9 @@ import torch
 import logging
 import json
 import streamlit as st
-from PIL import Image
 from src.utils import preprocess_text, load_vectorizer, load_model, make_prediction
 
-
+# Logging configuration
 log_dir = os.path.join('log')
 log_file = os.path.join(log_dir, 'app.log')
 os.makedirs(log_dir, exist_ok=True)
@@ -17,24 +16,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Set Streamlit page configuration
-# Set Streamlit page configuration
+# Streamlit page configuration
 st.set_page_config(
-    page_title="Sentiment Analysis Project 😤",
+    page_title="Sentiment Analysis Project",
     page_icon="😇",
     layout="centered",
 )
 
-# CSS to hide the Streamlit main menu, deploy button, and status indicator
+# Hide Streamlit elements
 hide_streamlit_style = """
     <style>
-    /* Hide the Main Menu */
     #MainMenu {visibility: hidden;}
-
-    /* Hide the Running status indicator */
     div[data-testid="stStatusWidget"] {visibility: hidden;}
-
-    /* Hide the footer */
     footer {visibility: hidden;}
     </style>
 """
@@ -44,13 +37,11 @@ def get_image_base64(image_path):
     import base64
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode("utf-8")
-    
+
 def display_flow_image():
-    # Construct OS-independent path
     image_path = os.path.join("imgs", "dev-flow.png")
     
     if os.path.exists(image_path):
-        # Set the image size as desired for viewing (100% width, 70% height)
         st.markdown(
             f"""
             <div style="display: flex; justify-content: center;">
@@ -64,9 +55,6 @@ def display_flow_image():
     else:
         st.warning("Image 'dev-flow.png' not found.")
         logger.error("File 'dev-flow.png' not found. Cannot display application development flow image.")
-
-
-
 
 def load_slang_dictionary():
     file_path = os.path.join(os.path.dirname(__file__), 'data', 'slang_and_short_forms.json')
@@ -105,14 +93,10 @@ def perform_sentiment_analysis(text, device='cpu'):
     return make_prediction(review_tensor, model)
 
 # Main UI
-
-# Navigation buttons at the top of the page
-
-# Main UI
 st.markdown(
     """
     <h1 style='position: fixed; top: 6.5%; left: 8.5%; transform: translateX(-50%); color: #316FF6; padding: 5px;'>
-    Project
+    Projects
     </h1>
     """,
     unsafe_allow_html=True
@@ -126,7 +110,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Navigation buttons at the top of the page
 st.markdown(
     """
     <div style="display: flex; gap: 10px; margin-bottom: 30px; position: fixed; top: 9%; left: 16%; transform: translateX(50%);">
@@ -138,14 +121,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-
-# Initialize session state variables
 if 'page' not in st.session_state:
-    st.session_state['page'] = 'home'
+    st.session_state['page'] = 'app'
 
-# Retrieve query parameter for the page
-page = st.experimental_get_query_params().get("page", ["home"])[0]
+page = st.experimental_get_query_params().get("page", ["app"])[0]
 st.session_state['page'] = page
 
 if st.session_state['page'] == 'home':
@@ -159,15 +138,11 @@ if st.session_state['page'] == 'home':
     
 elif st.session_state['page'] == 'app':
     st.title("Sentiment Analysis App")
-    # Input for sentiment analysis
-    
     st.markdown("""
-- **Enter Review**: Type or paste your review (minimum 10 words required).
-- **Click "Analyze"**: To start the sentiment analysis.
-- **Word Check**: A warning appears if fewer than 10 words or if text is empty.  
-  If so, retry with more words.
-""")
-
+    - **Enter Review**: Type or paste your review (minimum 10 words required).
+    - **Click "Analyze"**: To start the sentiment analysis.
+    - **Word Check**: A warning appears if fewer than 10 words or if text is empty.
+    """)
 
     text_input = st.text_area("Enter your review for sentiment analysis (minimum 10 words required):", "")
     word_count = len(text_input.split())
@@ -182,3 +157,6 @@ elif st.session_state['page'] == 'app':
             st.warning("Please enter at least 10 words for analysis.")
         else:
             st.warning("Please enter some text to analyze.")
+            
+if __name__ == "__main__":
+    pass

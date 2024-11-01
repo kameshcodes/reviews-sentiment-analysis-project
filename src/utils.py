@@ -110,6 +110,5 @@ def make_prediction(review_tensor, model):
         
         
 
-# Main script entry point (for testing or standalone use)
 if __name__ == "__main__":
     pass

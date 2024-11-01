@@ -42,3 +42,6 @@ class ImdbLSTM(nn.Module):
     def forward(self, x):
         lstm_out, _ = self.lstm(x)
         return self.layer_stack(lstm_out[:, -1, :])  # Use the last time step's output
+
+if __name__ == "__main__":
+    pass
