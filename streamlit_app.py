@@ -132,7 +132,7 @@ st.markdown(
     <div style="display: flex; gap: 10px; margin-bottom: 30px; position: fixed; top: 9%; left: 16%; transform: translateX(50%);">
         <a href="?page=home" style="background-color: #535353; color: white; padding: 3px 20px; border-radius: 5px; text-decoration: none; font-size: 16px;">Home</a>
         <a href="?page=app" style="background-color: #535353; color: white; padding: 3px 20px; border-radius: 5px; text-decoration: none; font-size: 16px;">App</a>
-        <a href="https://github.com/your-repo-url" target="_blank" style="background-color: #535353; color: white; padding: 5px 20px; border-radius: 5px; text-decoration: none; font-size: 16px;">GitHub Repository</a>
+        <a href="https://github.com/kameshcodes/reviews-sentiment-analysisi-project" target="_blank" style="background-color: #535353; color: white; padding: 5px 20px; border-radius: 5px; text-decoration: none; font-size: 16px;">GitHub Repository</a>
     </div>
     """,
     unsafe_allow_html=True
@@ -143,9 +143,10 @@ st.markdown(
 # Initialize session state variables
 if 'page' not in st.session_state:
     st.session_state['page'] = 'home'
-page = st.query_params.get("page", "home")
-st.session_state['page'] = page
 
+# Retrieve query parameter for the page
+page = st.experimental_get_query_params().get("page", ["home"])[0]
+st.session_state['page'] = page
 
 if st.session_state['page'] == 'home':
     st.title("Sentiment Analysis App")
