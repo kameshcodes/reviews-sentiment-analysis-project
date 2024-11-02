@@ -1,7 +1,5 @@
-# src/model.py
-
-import torch
 from torch import nn
+
 
 class ImdbLSTM(nn.Module):
     def __init__(self, input_size=5000, lstm_hidden_size=130, lstm_layers=3, fc_size=[64, 32, 16], op_size=1):
@@ -42,6 +40,7 @@ class ImdbLSTM(nn.Module):
     def forward(self, x):
         lstm_out, _ = self.lstm(x)
         return self.layer_stack(lstm_out[:, -1, :])  # Use the last time step's output
+
 
 if __name__ == "__main__":
     pass

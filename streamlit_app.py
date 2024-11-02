@@ -1,9 +1,9 @@
 import os
-import torch
 import logging
-import json
+from typing import Optional
+import torch
 import streamlit as st
-from src.utils import preprocess_text, load_vectorizer, load_model, make_prediction
+from src.utils import preprocess_text, load_vectorizer, load_model, make_prediction, load_slang_dictionary
 
 # Logging configuration
 log_dir = os.path.join('log')
@@ -33,21 +33,35 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-def get_image_base64(image_path):
+
+def get_image_base64(image_path: str) -> str:
+    """
+    Encode an image to a base64 string.
+
+    Args:
+        image_path (str): The path to the image file.
+
+    Returns:
+        str: Base64 encoded string of the image.
+    """
     import base64
     with open(image_path, "rb") as img_file:
         return base64.b64encode(img_file.read()).decode("utf-8")
 
-def display_flow_image():
+
+def display_flow_image() -> None:
+    """
+    Display the application development flow image in the Streamlit app.
+    """
     image_path = os.path.join("imgs", "dev-flow.png")
-    
+
     if os.path.exists(image_path):
         st.markdown(
             f"""
             <div style="display: flex; justify-content: center;">
-                <img src="data:image/png;base64,{get_image_base64(image_path)}" 
-                     alt="Application Development Flow" 
-                     style="width: 100%; height: 70%;">
+                <img src="data:image/png;base64,{get_image_base64(image_path)}"
+                alt="Application Development Flow"
+                style="width: 100%; height: 70%;">
             </div>
             """,
             unsafe_allow_html=True
@@ -56,27 +70,27 @@ def display_flow_image():
         st.warning("Image 'dev-flow.png' not found.")
         logger.error("File 'dev-flow.png' not found. Cannot display application development flow image.")
 
-def load_slang_dictionary():
-    file_path = os.path.join(os.path.dirname(__file__), 'data', 'slang_and_short_forms.json')
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            slang_dict = json.load(file)
-        logger.info("Slang dictionary loaded successfully")
-        return slang_dict
-    except json.JSONDecodeError as e:
-        logger.error(f"Error decoding slang dictionary JSON file: {e}")
-        return {}
 
-def perform_sentiment_analysis(text, device='cpu'):
+def perform_sentiment_analysis(text: str, device: str = 'cpu') -> Optional[str]:
+    """
+    Perform sentiment analysis on the given text.
+
+    Args:
+        text (str): The input text to analyze.
+        device (str): The device to use for the model ('cpu' or 'cuda').
+
+    Returns:
+        Optional[str]: The sentiment prediction ("Positive" or "Negative"), or an error message if any issue arises.
+    """
     logger.info("Starting sentiment analysis")
     slang_dict = load_slang_dictionary()
     preprocessed_text = preprocess_text(text, slang_dict)
     vectorizer = load_vectorizer()
-    
+
     if not vectorizer:
         logger.error("Failed to load vectorizer")
         return "Error loading vectorizer"
-    
+
     try:
         review_vec = vectorizer.transform([preprocessed_text])
         review_tensor = torch.tensor(review_vec.toarray(), dtype=torch.float32).to(device)
@@ -84,15 +98,16 @@ def perform_sentiment_analysis(text, device='cpu'):
     except Exception as e:
         logger.error(f"Error transforming text to tensor: {e}")
         return f"Error transforming text to tensor: {e}"
-    
+
     model = load_model(device)
     if not model:
         logger.error("Failed to load model")
         return "Error loading model"
-    
+
     return make_prediction(review_tensor, model)
 
-# Main UI
+
+# Main UI setup
 st.markdown(
     """
     <h1 style='position: fixed; top: 6.5%; left: 8.5%; transform: translateX(-50%); color: #316FF6; padding: 5px;'>
@@ -135,7 +150,7 @@ if st.session_state['page'] == 'home':
     )
     display_flow_image()
     st.empty()
-    
+
 elif st.session_state['page'] == 'app':
     st.title("Sentiment Analysis App")
     st.markdown("""
@@ -146,7 +161,7 @@ elif st.session_state['page'] == 'app':
 
     text_input = st.text_area("Enter your review for sentiment analysis (minimum 10 words required):", "")
     word_count = len(text_input.split())
-    
+
     if st.button("Analyze"):
         if word_count >= 10:
             with st.spinner("Analyzing sentiment..."):
@@ -157,6 +172,6 @@ elif st.session_state['page'] == 'app':
             st.warning("Please enter at least 10 words for analysis.")
         else:
             st.warning("Please enter some text to analyze.")
-            
+
 if __name__ == "__main__":
     pass

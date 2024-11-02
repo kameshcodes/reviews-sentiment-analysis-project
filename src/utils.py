@@ -1,15 +1,14 @@
 import os
-import re
+import json
 import logging
-import joblib
+import re
+from typing import (Dict, Union, Optional)
 import torch
+import joblib
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
 from src.models import ImdbLSTM
-import warnings
-warnings.filterwarnings("ignore", message="Examining the path of torch.classes raised")
-
 
 # Set up logging configuration with OS-independent path
 log_dir = os.path.join('log')
@@ -27,14 +26,49 @@ stop_words = set(stopwords.words('english')) - {"not", "no", "never", "neither",
 lemmatizer = WordNetLemmatizer()
 
 
-# Expand slang using the dynamically loaded dictionary
-def expand_slang_and_short_forms(text, slang_dict):
-    """Replace slang and short forms in text with their full forms."""
+def load_slang_dictionary() -> Dict[str, str]:
+    """
+    Load and return the slang dictionary from JSON file.
+
+    Returns:
+        Dict[str, str]: A dictionary mapping slang terms to their expanded forms.
+    """
+    file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'slang_and_short_forms.json')
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            slang_dict = json.load(file)
+        logger.info("Slang dictionary loaded successfully")
+        return slang_dict
+    except json.JSONDecodeError as e:
+        logger.error(f"Error decoding slang dictionary JSON file: {e}")
+        return {}
+
+
+def expand_slang_and_short_forms(text: str, slang_dict: Dict[str, str]) -> str:
+    """
+    Replace slang and short forms in text with their full forms.
+
+    Args:
+        text (str): Input text containing slang terms.
+        slang_dict (Dict[str, str]): Dictionary of slang terms and their expansions.
+
+    Returns:
+        str: Text with slang terms expanded to their full forms.
+    """
     pattern = re.compile(r'\b(' + '|'.join(map(re.escape, slang_dict.keys())) + r')\b')
     return pattern.sub(lambda x: slang_dict[x.group()], text)
 
-def data_preprocessing(review):
-    """Preprocess the text data: clean, tokenize, remove stop words, and lemmatize."""
+
+def data_preprocessing(review: str) -> str:
+    """
+    Clean, tokenize, remove stop words, and lemmatize the review text.
+
+    Args:
+        review (str): Input review text to be preprocessed.
+
+    Returns:
+        str: Preprocessed text with stop words removed and words lemmatized.
+    """
     review = re.sub(r'<.*?>', '', review)  # Remove HTML tags
     review = re.sub(r'http\S+|www\S+|https\S+', '', review, flags=re.MULTILINE)  # Remove URLs
     review = re.sub(r'\S+@\S+', '', review)  # Remove emails
@@ -46,14 +80,30 @@ def data_preprocessing(review):
     processed_review = ' '.join(tokens)
     return processed_review
 
-def preprocess_text(text, slang_dict):
-    """Perform slang expansion and text preprocessing on the input text."""
+
+def preprocess_text(text: str, slang_dict: Dict[str, str]) -> str:
+    """
+    Perform slang expansion and text preprocessing on the input text.
+
+    Args:
+        text (str): Input text to be preprocessed.
+        slang_dict (Dict[str, str]): Dictionary of slang terms and their expansions.
+
+    Returns:
+        str: Preprocessed text with slang expanded and cleaned.
+    """
     logger.info("Preprocessing text")
     text = expand_slang_and_short_forms(text, slang_dict)
     return data_preprocessing(text)
 
-def load_vectorizer():
-    """Load and return the vectorizer."""
+
+def load_vectorizer() -> Optional[Union[joblib, None]]:
+    """
+    Load and return the vectorizer from a file.
+
+    Returns:
+        Optional[Union[joblib, None]]: Loaded vectorizer if successful; None if loading fails.
+    """
     vectorizer_path = os.path.join('checkpoints', 'vectorizer.joblib')
     try:
         if not os.path.exists(vectorizer_path):
@@ -67,37 +117,49 @@ def load_vectorizer():
         logger.error(f"Unexpected error loading vectorizer: {e}")
     return None
 
-def load_model(device='cpu'):
-    """Initialize and load the model with weights from the checkpoint."""
+
+def load_model(device: str = 'cpu') -> Optional[torch.nn.Module]:
+    """
+    Initialize and load the model with weights from the checkpoint.
+
+    Args:
+        device (str): Device to load the model on ('cpu' or 'cuda').
+
+    Returns:
+        Optional[torch.nn.Module]: Loaded model with weights if successful; None if loading fails.
+    """
     model_path = os.path.join('checkpoints', 'ImdbLSTM_checkpoint.pth.tar')
     try:
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at path: {model_path}")
-        
         # Initialize the model architecture
         model = ImdbLSTM(input_size=5000, lstm_hidden_size=130, lstm_layers=3, fc_size=[64, 32, 16], op_size=1).to(device)
-        
         # Load the checkpoint
-        checkpoint = torch.load(model_path, map_location=device, weights_only=True)
-        
+        checkpoint = torch.load(model_path, map_location=device)
         # Load the state_dict
         model.load_state_dict(checkpoint, strict=False)  # Allow flexibility in loading weights
         model.eval()
-        
         logger.info("Model loaded successfully with weights only")
         return model
     except FileNotFoundError as e:
         logger.error(f"Model file missing: {e}")
     except Exception as e:
         logger.error(f"Unexpected error loading model: {e}")
-    
     return None
 
 
-def make_prediction(review_tensor, model):
-    """Generate sentiment prediction."""
+def make_prediction(review_tensor: torch.Tensor, model: torch.nn.Module) -> Optional[str]:
+    """
+    Generate sentiment prediction from the model.
+
+    Args:
+        review_tensor (torch.Tensor): Tensor representation of the review.
+        model (torch.nn.Module): Trained model used for prediction.
+
+    Returns:
+        Optional[str]: Predicted sentiment ("Positive" or "Negative") if successful; None if an error occurs.
+    """
     try:
-        # Ensure the tensor has the correct shape
         review_tensor = review_tensor.unsqueeze(0)  # Add batch dimension
         with torch.no_grad():
             output = model(review_tensor)
@@ -107,8 +169,8 @@ def make_prediction(review_tensor, model):
         return sentiment
     except Exception as e:
         logger.error(f"Error during prediction: {e}")
-        
-        
+        return None
+
 
 if __name__ == "__main__":
     pass
