@@ -3,11 +3,6 @@
 .gitignore
 .gitattributes
 
-# === CI/CD Workflows ===
-.github/
-.github/workflows/
-.github/workflows/**
-
 # === Dependency Directories ===
 venv/
 ENV/
