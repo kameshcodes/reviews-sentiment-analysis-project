@@ -5,6 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: sentiment_analysis_container
+    container_name: review_sentiment_analysis_container
     ports:
       - "8502:8502" 

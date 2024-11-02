@@ -139,7 +139,7 @@ st.markdown(
 if 'page' not in st.session_state:
     st.session_state['page'] = 'app'
 
-page = st.experimental_get_query_params().get("page", ["app"])[0]
+page = st.query_params.get("page", ["app"])[0]
 st.session_state['page'] = page
 
 if st.session_state['page'] == 'home':

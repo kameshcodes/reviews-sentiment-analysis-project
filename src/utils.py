@@ -2,9 +2,10 @@ import os
 import json
 import logging
 import re
-from typing import (Dict, Union, Optional)
+from typing import Dict, Optional
 import torch
 import joblib
+from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -97,7 +98,7 @@ def preprocess_text(text: str, slang_dict: Dict[str, str]) -> str:
     return data_preprocessing(text)
 
 
-def load_vectorizer() -> Optional[Union[joblib, None]]:
+def load_vectorizer() -> Optional[TfidfVectorizer]:
     """
     Load and return the vectorizer from a file.
 
@@ -118,7 +119,7 @@ def load_vectorizer() -> Optional[Union[joblib, None]]:
     return None
 
 
-def load_model(device: str = 'cpu') -> Optional[torch.nn.Module]:
+def load_model(device: str = 'cpu') -> Optional[ImdbLSTM]:
     """
     Initialize and load the model with weights from the checkpoint.
 
