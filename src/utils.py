@@ -136,7 +136,7 @@ def load_model(device: str = 'cpu') -> Optional[ImdbLSTM]:
         # Initialize the model architecture
         model = ImdbLSTM(input_size=5000, lstm_hidden_size=130, lstm_layers=3, fc_size=[64, 32, 16], op_size=1).to(device)
         # Load the checkpoint
-        checkpoint = torch.load(model_path, map_location=device)
+        checkpoint = torch.load(model_path, map_location=device, weights_only=False)
         # Load the state_dict
         model.load_state_dict(checkpoint, strict=False)  # Allow flexibility in loading weights
         model.eval()
