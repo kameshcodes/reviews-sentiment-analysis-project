@@ -3,6 +3,7 @@ import json
 import logging
 import re
 from typing import Dict, Optional
+import warnings
 import torch
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -10,6 +11,8 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from src.models import ImdbLSTM
+
+warnings.filterwarnings("ignore", message="Examining the path of torch.classes raise")
 
 # Set up logging configuration with OS-independent path
 log_dir = os.path.join('log')

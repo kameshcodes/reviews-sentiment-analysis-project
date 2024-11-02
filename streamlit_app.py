@@ -3,7 +3,11 @@ import logging
 from typing import Optional
 import torch
 import streamlit as st
-from src.utils import preprocess_text, load_vectorizer, load_model, make_prediction, load_slang_dictionary
+from src.utils import (preprocess_text,
+                       load_vectorizer,
+                       load_model,
+                       make_prediction,
+                       load_slang_dictionary)
 
 # Logging configuration
 log_dir = os.path.join('log')

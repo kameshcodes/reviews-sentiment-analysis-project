@@ -1,35 +1,26 @@
-# Use Python base image
 FROM python:3.9-slim
 
-# Set the working directory
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Copy and install dependencies
-COPY requirements.txt .
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git curl && \
-    python -m venv venv && \
-    . /app/venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    rm -rf /var/lib/apt/lists/*  # Clean up after installation
+    rm -rf /var/lib/apt/lists/*
 
-# Copy application code
+COPY requirements.txt .
+
+RUN python -m venv venv && \
+    ./venv/bin/pip install --upgrade pip && \
+    ./venv/bin/pip install -r requirements.txt
+
+ENV PATH="/app/venv/bin:$PATH"
+
 COPY . .
 
-# Run additional setup script if needed
-RUN . /app/venv/bin/activate && python /app/src/setup-nltk.py
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PATH="/app/venv/bin:$PATH" 
-
-# Expose the Streamlit port
 EXPOSE 8502
 
-# Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD curl -f http://localhost:8502/health || exit 1
 
-# Run Streamlit application
-ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8502", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "streamlit_app.py", "--server.port=8502", "--server.address=0.0.0.0"]
