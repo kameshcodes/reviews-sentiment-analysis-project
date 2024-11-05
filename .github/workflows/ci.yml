@@ -12,6 +12,7 @@ jobs:
     env:
       HEALTH_CHECK_RETRIES: 2
       HEALTH_CHECK_INTERVAL: 1
+      NLTK_DATA: ${{ github.workspace }}/nltk_data  # Set NLTK data directory globally
 
     steps:
       - name: Checkout code
@@ -37,7 +38,8 @@ jobs:
       - name: Download NLTK resources
         run: |
           source venv/bin/activate
-          python -m nltk.downloader stopwords punkt
+          mkdir -p $NLTK_DATA
+          python -m nltk.downloader -d $NLTK_DATA punkt stopwords
 
       - name: Run linter
         run: |
@@ -52,4 +54,4 @@ jobs:
       - name: Cleanup unused resources
         run: |
           pip cache purge
-          rm -rf .pytest_cache venv
+          rm -rf .pytest_cache venv nltk_data
