@@ -22,13 +22,22 @@ jobs:
         with:
           python-version: '3.*'
 
-      - name: Install dependencies
+      - name: Create and activate virtual environment
         run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+
+      - name: Install dependencies in venv
+        run: |
+          source venv/bin/activate
           pip install -r requirements.txt
           pip install flake8 coverage
 
       - name: Run linter
-        run: flake8 .
+        run: |
+          source venv/bin/activate
+          flake8 .
 
       - name: Upload linting results
         uses: actions/upload-artifact@v3
@@ -38,6 +47,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
+          source venv/bin/activate
           coverage run -m pytest
           coverage xml -o coverage.xml
 
@@ -50,4 +60,4 @@ jobs:
       - name: Cleanup unused resources
         run: |
           pip cache purge
-          rm -rf .pytest_cache
+          rm -rf .pytest_cache venv
