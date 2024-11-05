@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    env:
+      HEALTH_CHECK_RETRIES: 2
+      HEALTH_CHECK_INTERVAL: 1
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.*'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install flake8 coverage
+
+      - name: Run linter
+        run: flake8 .
+
+      - name: Upload linting results
+        uses: actions/upload-artifact@v3
+        with:
+          name: lint-results
+          path: flake8-report.txt
+
+      - name: Run tests with coverage
+        run: |
+          coverage run -m pytest
+          coverage xml -o coverage.xml
+
+      - name: Upload test and coverage reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: coverage.xml
+
+      - name: Cleanup unused resources
+        run: |
+          pip cache purge
+          rm -rf .pytest_cache
