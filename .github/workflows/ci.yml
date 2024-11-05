@@ -34,6 +34,11 @@ jobs:
           pip install -r requirements.txt
           pip install flake8 coverage
 
+      - name: Download NLTK stopwords
+        run: |
+          source venv/bin/activate
+          python -m nltk.downloader stopwords
+
       - name: Run linter
         run: |
           source venv/bin/activate
