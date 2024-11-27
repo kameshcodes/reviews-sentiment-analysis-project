@@ -30,6 +30,8 @@ Thumbs.db
 *.log
 *.tmp
 *.bak
+log
+log/*
 
 # Ignore IDE or editor directories
 .vscode/
@@ -58,12 +60,8 @@ local/
 *.zip
 *.tar
 *.gz
-*.pickle
-*.joblib
-*.sav
 
 # Ignore large datasets (place in 'data' directory)
-data/
 *.npy
 *.npz
 
@@ -85,10 +83,6 @@ htmlcov/
 *.tfstate.backup
 .terraform/
 
-# Ignore logs and debugging artifacts
-logs/
-*.log
-
 # Ignore miscellaneous temporary files
 *.~*
 *.swp
@@ -96,7 +90,6 @@ logs/
 *.bak
 *.out
 *.err
-
 
 # Ignore configuration backups
 *.config.old

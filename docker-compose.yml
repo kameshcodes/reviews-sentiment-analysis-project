@@ -2,9 +2,10 @@ version: '3.8'
 
 services:
   sentiment_app:
+    container_name: review_sentiment_analysis_container
+    image: kameshcodes/sentiment-analysis-webapp:latest
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: review_sentiment_analysis_container
     ports:
-      - "8502:8502" 
+      - "8502:8502"
