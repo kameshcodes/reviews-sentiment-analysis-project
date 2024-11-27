@@ -61,7 +61,7 @@ jobs:
             echo "Existing instance found: $INSTANCE_ID"
           else
             echo "No existing instance found. Creating a new one."
-            INSTANCE_ID=$(aws ec2 run-instances --image-id ami-0c55b159cbfafe1f0 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0a1234567890abcdef --subnet-id subnet-6e7f829e --region ap-south-1 --tag-specifications 'ResourceType=instance,Tags=[{Key=Project,Value=myapp}]' --query 'Instances[0].InstanceId' --output text)
+            INSTANCE_ID=$(aws ec2 run-instances --image-id ami-0d8f6eb4f641ef691 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0a1234567890abcdef --subnet-id subnet-6e7f829e --region ap-south-1 --tag-specifications 'ResourceType=instance,Tags=[{Key=Project,Value=myapp}]' --query 'Instances[0].InstanceId' --output text)
           fi
           echo "::set-output name=instance_id::$INSTANCE_ID"
 
