@@ -17,14 +17,19 @@ __pycache__/
 .env
 .env.*
 
-# Ignore Docker Compose override files
+# Ignore Docker-related files
 docker-compose.override.yml
+docker-compose.yml
+Dockerfile
+.dockerignore
 
 # Ignore system files and temporary files
 .DS_Store
 Thumbs.db
 *.swp
 *.log
+*.tmp
+*.bak
 
 # Ignore IDE or editor directories
 .vscode/
@@ -37,6 +42,30 @@ build/
 dist/
 *.egg-info/
 .eggs/
+site/
+local/
+
+# Ignore data-related files
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+*.hdf5
+*.db
+*.sqlite
+*.zip
+*.tar
+*.gz
+*.pickle
+*.joblib
+*.sav
+
+# Ignore large datasets (place in 'data' directory)
+data/
+*.npy
+*.npz
 
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints
@@ -50,3 +79,30 @@ htmlcov/
 
 # Ignore Streamlit cache
 .streamlit/
+
+# Ignore Terraform files
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Ignore logs and debugging artifacts
+logs/
+*.log
+
+# Ignore miscellaneous temporary files
+*.~*
+*.swp
+*.tmp
+*.bak
+*.out
+*.err
+
+
+# Ignore configuration backups
+*.config.old
+*.config.bak
+
+# Ignore other unnecessary directories
+node_modules/
+yarn-error.log
+npm-debug.log
