@@ -56,57 +56,54 @@ jobs:
       - name: Check for existing EC2 instance
         id: check_instance
         run: |
-          INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:Project,Values=myapp" "Name=instance-state-name,Values=running" --region ap-south-1 --query "Reservations[*].Instances[*].InstanceId" --output text)
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Project,Values=myapp" "Name=instance-state-name,Values=running" \
+            --query "Reservations[].Instances[].InstanceId" --output text)
           if [ -n "$INSTANCE_ID" ]; then
             echo "Existing instance found: $INSTANCE_ID"
           else
             echo "No existing instance found. Creating a new one."
-            INSTANCE_ID=$(aws ec2 run-instances --image-id ami-0d8f6eb4f641ef691 --count 1 --instance-type t2.micro --key-name MyKeyPair --security-group-ids sg-0a1234567890abcdef --subnet-id subnet-6e7f829e --region ap-south-1 --tag-specifications 'ResourceType=instance,Tags=[{Key=Project,Value=myapp}]' --query 'Instances[0].InstanceId' --output text)
+            INSTANCE_ID=$(aws ec2 run-instances \
+              --image-id ami-052c08d70def0ac62 \
+              --count 1 \
+              --instance-type t2.micro \
+              --key-name MyKeyPair \
+              --security-group-ids sg-0a1234567890abcdef \
+              --subnet-id subnet-6e7f829e \
+              --tag-specifications 'ResourceType=instance,Tags=[{Key=Project,Value=myapp}]' \
+              --query 'Instances[0].InstanceId' --output text)
           fi
           echo "::set-output name=instance_id::$INSTANCE_ID"
 
       - name: Wait for EC2 instance to be running
         run: |
-          aws ec2 wait instance-running --instance-ids ${{ steps.check_instance.outputs.instance_id }} --region ap-south-1
+          aws ec2 wait instance-running --instance-ids ${{ steps.check_instance.outputs.instance_id }}
 
       - name: Get EC2 public IP
         id: get_ip
         run: |
-          PUBLIC_IP=$(aws ec2 describe-instances --instance-ids ${{ steps.check_instance.outputs.instance_id }} --region ap-south-1 --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+          PUBLIC_IP=$(aws ec2 describe-instances \
+            --instance-ids ${{ steps.check_instance.outputs.instance_id }} \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
           echo "::set-output name=public_ip::$PUBLIC_IP"
 
       - name: Deploy Docker image to EC2
-        id: deploy_docker
         run: |
-          ssh -o StrictHostKeyChecking=no -i MyKeyPair.pem ec2-user@${{ steps.get_ip.outputs.public_ip }} << EOF
+          ssh -o StrictHostKeyChecking=no -i MyKeyPair.pem ec2-user@${{ steps.get_ip.outputs.public_ip }} << 'EOF'
             set -e
             sudo yum update -y
             sudo amazon-linux-extras install docker -y
             sudo service docker start
             sudo usermod -a -G docker ec2-user
-            docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-            if [ \$(docker ps -q --filter ancestor=kameshcodes/sentiment-analysis-webapp:latest) ]; then
-              docker stop \$(docker ps -q --filter ancestor=kameshcodes/sentiment-analysis-webapp:latest)
-              docker rm \$(docker ps -a -q --filter ancestor=kameshcodes/sentiment-analysis-webapp:latest)
-            fi
+            docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" -p "${{ secrets.DOCKERHUB_PASSWORD }}"
             docker pull kameshcodes/sentiment-analysis-webapp:latest
-            docker run -d -p 8502:8502 kameshcodes/sentiment-analysis-webapp:latest
+            if [ \$(docker ps -q -f name=sentiment-app) ]; then
+              docker stop sentiment-app
+              docker rm sentiment-app
+            fi
+            docker run -d --name sentiment-app -p 8502:8502 kameshcodes/sentiment-analysis-webapp:latest
           EOF
 
       - name: Report EC2 public IP
-        if: success()
         run: |
           echo "Application is running at http://${{ steps.get_ip.outputs.public_ip }}:8502"
-
-      - name: Terminate EC2 instance on failure
-        if: failure()
-        run: |
-          aws ec2 terminate-instances --instance-ids ${{ steps.check_instance.outputs.instance_id }} --region ap-south-1
-          aws ec2 wait instance-terminated --instance-ids ${{ steps.check_instance.outputs.instance_id }} --region ap-south-1
-
-      - name: Cleanup Docker on success
-        if: success()
-        run: |
-          ssh -o StrictHostKeyChecking=no -i MyKeyPair.pem ec2-user@${{ steps.get_ip.outputs.public_ip }} << EOF
-            docker system prune -f --volumes
-          EOF
