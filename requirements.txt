@@ -4,3 +4,5 @@ scikit-learn
 colorama
 nltk
 streamlit
+flake8
+pytest

@@ -3,9 +3,6 @@ import logging
 from typing import Optional
 import torch
 import streamlit as st
-import nltk
-import os
-
 from src.utils import (preprocess_text,
                        load_vectorizer,
                        load_model,
@@ -115,7 +112,6 @@ def perform_sentiment_analysis(text: str, device: str = 'cpu') -> Optional[str]:
     return make_prediction(review_tensor, model)
 
 
-
 # Main UI setup
 st.markdown(
     """
@@ -148,10 +144,10 @@ st.markdown(
         font-size: 22.8px; /* Increased font size */
         border: none; /* No visible border */
         cursor: pointer;
-        transition: color 0.22s ease; 
+        transition: color 0.22s ease;
     }
     .custom-button:hover {
-        color: #0F52BA !important; 
+        color: #0F52BA !important;
     }
     </style>
     <div style="display: flex; gap: 1px; margin-bottom: 30px; position: fixed; top: 4.8%; left: 50%; transform: translateX(50%);">
@@ -163,7 +159,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-###page background color
+# page background color
 st.markdown(
     """
     <style>
@@ -174,8 +170,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
 
 st.markdown(
     """
@@ -222,6 +216,6 @@ if st.button("Analyze"):
         st.warning("Please enter at least 10 words for analysis.")
     else:
         st.warning("Please enter some text to analyze.")
-        
+
 if __name__ == "__main__":
     pass

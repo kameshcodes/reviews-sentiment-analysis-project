@@ -33,11 +33,11 @@ Throughout the development, I experimented with various models, including Vanill
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/your-username/sentiment-analysis-app.git
+   git clone https://github.com/kameshcodes/reviews-sentiment-analysis-project.git
    cd sentiment-analysis-app
    ```
 
-2. **Download the Dataset**: Download and extract the [Stanford Large Movie Review Dataset](http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz). Place the data in the `data` folder within this repository.
+2. **Download the Dataset(OPTIONAL, only if you want to retrain model)**: Download and extract the [Stanford Large Movie Review Dataset](http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz). Place the data in the `data` folder within this repository.
 
 3. **Build and Run Docker Containers**: Using `docker-compose`, you can set up and start the app by running:
 
